@@ -1,7 +1,7 @@
 import logging
 from django.template import Context, Template
-from data.models import Machine, ServerConfig
-from utils.ssh import SSH
+from orthos2.data.models import Machine, ServerConfig
+from orthos2.utils.ssh import SSH
 
 logger = logging.getLogger('utils')
 
@@ -18,7 +18,8 @@ def get_default_profile(machine):
 
 
 def create_cobbler_options(machine):
-    options = " --name={name} --ip-address={ipv4}".format(name=machine.fqdn, ipv4=machine.ipv4)
+    options = " --name={name} --ip-address={ipv4} --mac-address={mac}".format(
+              name=machine.fqdn, ipv4=machine.ipv4, mac=machine.mac_address)
     if machine.ipv6:
         options += " --ipv6-address={ipv6}".format(ipv6=machine.ipv6)
     options += " --interface=default --management=True --interface-master=True"
