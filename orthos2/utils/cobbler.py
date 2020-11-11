@@ -1,5 +1,6 @@
 import logging
 
+
 from orthos2.data.models import Machine, ServerConfig
 from django.template import Context, Template
 from orthos2.utils.ssh import SSH
@@ -16,6 +17,7 @@ def get_default_profile(machine):
     if default:
         return default
     raise ValueError("Machine {machine} has no default profile".format(machine=machine.fqdn))
+
 
 def get_tftp_server(machine: Machine):
     """
@@ -35,6 +37,21 @@ def get_tftp_server(machine: Machine):
 
     return server.fqdn if server else None
 
+
+<<<<<<< HEAD
+def create_power_options(remote_power):
+=======
+def create_power_options(remote_power: RemotePower):
+>>>>>>> e4cf15c... Use Cobbler for powerswitching
+    option_str: str = " --power-address={paddr} ".format(paddr=remote_power.management_bmc)
+    option_str += " --power-id={pid} ".format(pid=remote_power.port)
+    user, passw = remote_power.get_credentials()
+    option_str += " --power-user={user} --power-pass={pass}".format(user=user, passw=passw)
+    option_str += " --power-type={ptype} ".format(
+        ptype=remote_power.TYPE_CHOICES[remote_power.type][1])
+    return option_str
+
+
 def create_cobbler_options(machine):
     options = " --name={name} --ip-address={ipv4}".format(name=machine.fqdn, ipv4=machine.ipv4)
     if machine.ipv6:
@@ -44,6 +61,8 @@ def create_cobbler_options(machine):
         options += " --filename={filename}".format(filename=get_filename(machine))
     if get_tftp_server(machine):
         options += " --next-server={server}".format(server=get_tftp_server(machine))
+    if machine.has_remotepower():
+        options += create_power_options(machine.remote_power)
     return options
 
 
@@ -149,15 +168,46 @@ class CobblerServer:
 
     def setup(self, machine: Machine, choice: str):
         logger.info("setup called for %s with %s on cobbler server %s ", machine.fqdn, self._fqdn,
-            choice)
+                    choice)
         cobbler_profile = "{arch}:{profile}".format(machine.architecture, choice)
         command = "{cobbler} system edit --name={machine}  --profile={profile} --netboot=True"\
             .format(cobbler=self._cobbler_path, machine=machine.fqdn, profile=cobbler_profile)
         logger.debug("command for setup: %s", command)
         stdout, stderr, exitstatus = self._conn.execute(command)
         if exitstatus:
-            logger.warning("setup of  %s with %s failed on %s with %s", machine.fqdn, 
-                cobbler_profile, self._fqdn, stderr)
+            logger.warning("setup of  %s with %s failed on %s with %s", machine.fqdn,
+                           cobbler_profile, self._fqdn, stderr)
             raise CobblerException(
                 "setup of {machine} with {profile} failed on {server} with {error}".format(
                     machine=machine.fqdn, arch=cobbler_profile, server=self._fqdn))
+
+    def powerswitch(self, machine: Machine, action: str):
+<<<<<<< HEAD
+        from orthos.data.models import RemotePower
+=======
+>>>>>>> e4cf15c... Use Cobbler for powerswitching
+        logger.info("powerswitch called on %s, with %s ", machine.fqdn, action)
+        if action not in RemotePower.Action.as_list:
+            raise ValueError("powserswitch called with invalid action {action},"
+                             "for machine {machine}".format(arg=action))
+        if machine.fqdn not in self.get_machines():
+            logging.error("machine %s is not on cobbler server %s, aborting powerswitch",
+                          machine.fqdn, self._fqdn)
+            raise CobblerException("machine {0} is not on cobbler server {1}, aborting powerswitch"
+                                   .format(machine.fqdn, self._fqdn))
+        power_verb: str = ""
+        if action == RemotePower.Action.ON:
+            power_verb = "poweron"
+        elif action in {RemotePower.Action.OFF, RemotePower.Action.OFF_REMOTEPOWER}:
+            power_verb = "poweroff"
+        elif action in {RemotePower.Action.REBOOT, RemotePower.Action.REBOOT_REMOTEPOWER}:
+            power_verb = "reboot"
+        power_command: str = "{cobbler} system {verb} --name={fqdn}".format(
+            cobbler=self._cobbler_path, verb=power_verb, fqdn=machine.fqdn)
+        logger.debug("executing %s on %s", power_command, self._fqdn)
+        _, stderr, exitstatus = self._conn.execute(power_command)
+        if exitstatus:
+            logger.warning("powerswitching with  %s failed on %s, \n stderr: %s", power_command,
+                           self._fqdn, stderr)
+            raise CobblerException("powerswitching with  {0} failed on {1}, \n stderr: {2}".format(
+                power_command, self._fqdn, stderr))
