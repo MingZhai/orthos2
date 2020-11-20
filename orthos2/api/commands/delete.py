@@ -113,12 +113,12 @@ class DeleteMachineCommand(BaseAPIView):
 
         form = DeleteMachineAPIForm()
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST,
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, *args, **kwargs):
         """Delete machine."""
@@ -195,12 +195,12 @@ class DeleteSerialConsoleCommand(BaseAPIView):
 
         form = DeleteSerialConsoleAPIForm()
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST,
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, *args, **kwargs):
         """Delete serial console."""
@@ -271,12 +271,12 @@ class DeleteRemotePowerCommand(BaseAPIView):
 
         form = DeleteRemotePowerAPIForm()
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST,
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, *args, **kwargs):
         """Delete remote power."""

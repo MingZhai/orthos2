@@ -164,12 +164,12 @@ class AddVMCommand(BaseAPIView):
 
         form = VirtualMachineAPIForm(virtualization_api=host.virtualization_api)
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(host),
             self.URL_POST.format(arch=architecture),
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, architecture, *args, **kwargs):
         """Add virtual machine for specific `architecture`."""
@@ -242,12 +242,12 @@ class AddMachineCommand(BaseAPIView):
 
         form = MachineAPIForm()
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST,
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, *args, **kwargs):
         """Add machine."""
@@ -323,12 +323,12 @@ class AddSerialConsoleCommand(BaseAPIView):
 
         form = SerialConsoleAPIForm(machine=machine)
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST.format(fqdn=machine.fqdn),
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, fqdn, *args, **kwargs):
         """Add serial console to machine."""
@@ -405,12 +405,12 @@ class AddAnnotationCommand(BaseAPIView):
 
         form = AnnotationAPIForm(machine=machine)
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST.format(fqdn=machine.fqdn),
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, fqdn, *args, **kwargs):
         """Add annotation to machine."""
@@ -492,12 +492,12 @@ class AddRemotePowerCommand(BaseAPIView):
 
         form = RemotePowerAPIForm(machine=machine)
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST.format(fqdn=machine.fqdn),
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, fqdn, *args, **kwargs):
         """Add remote power to machine."""

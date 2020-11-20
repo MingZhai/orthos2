@@ -67,12 +67,12 @@ Example:
             reason=machine.reserved_reason
         )
 
-        input = InputSerializer(
+        data = InputSerializer(
             form.as_dict(),
             self.URL_POST.format(id=machine.pk),
             form.get_order()
         )
-        return input.as_json
+        return data.as_json
 
     def post(self, request, id, *args, **kwargs):
         """Process reservation."""
